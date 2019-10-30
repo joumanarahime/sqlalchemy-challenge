@@ -45,7 +45,8 @@ def home():
         f"/api/v1.0/precipitation<br/>"
         f"/api/v1.0/stations<br/>"
         f"/api/v1.0/tobs<br/>"
-        f"/api/v1.0/<start>` and `/api/v1.0/<start>/<end>"
+        f"/api/v1.0/2016-01-30<br/>"
+        f"/api/v1.0/2016-01-30/2017-01-30"
         )
 
 
@@ -96,8 +97,8 @@ def tobs():
     return jsonify(temp_dict)
 
 @app.route("/api/v1.0/<start>")
-def start(start):
- 
+def start_date(start):
+    session=Session(engine)
     sel= [func.min(Measurement.tobs), func.avg(Measurement.tobs), func.max(Measurement.tobs)]
 
     results= (session.query(*sel)
@@ -107,18 +108,18 @@ def start(start):
 
     for result in results:
         start_dict={
-                    "Date": result[0][0],
-                    "Low Temp": result[0][1],
-                    "Avg Temp": result[0][2],
-                    "Highest Temp": result[0][3]    
+                    "Date": start,
+                    "Low Temp": result[0],
+                    "Avg Temp": result[1],
+                    "Highest Temp": result[2]    
                     }
         dates.append(start_dict)            
     return jsonify(dates)
 
 
 @app.route("/api/v1.0/<start>/<end>")
-def startEnd(start, end):
- 
+def start_end_date(start, end):
+    session=Session(engine)
     sel= [func.min(Measurement.tobs), func.avg(Measurement.tobs), func.max(Measurement.tobs)]
 
     results= (session.query(*sel)
@@ -130,12 +131,14 @@ def startEnd(start, end):
     for result in results:
         startEnd_dict={}
         startEnd_dict={
-                    "Date": result[0][0],
-                    "Low Temp": result[0][1],
-                    "Avg Temp": result[0][2],
-                    "Highest Temp": result[0][3]    
+                    "Start Date": start,
+                    "End Date": end,
+                    "Low Temp": result[0],
+                    "Avg Temp": result[1],
+                    "Highest Temp": result[2]    
                     }
         dates.append(startEnd_dict)
+        
     return jsonify(dates)
 
 
